@@ -1,0 +1,19 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2023-12-03T06:08:28-05:00",
+  "id": "flutter-firebase-graphql",
+  "duration": 0,
+  "title": "Firebase Authentication with GraphQL in Flutter",
+  "authors": "emmanuelCode",
+  "summary": "Firebase Authentication with GraphQL",
+  "source": "flutter-firebase-graphql.md",
+  "theme": "",
+  "status": null,
+  "category": null,
+  "tags": [],
+  "feedback": "https://github.com/emmanuelCode/graphql-firebase-flutter/issues/new",
+  "url": "flutter-firebase-graphql"
+}

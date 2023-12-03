@@ -1,0 +1,1213 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Firebase Authentication with GraphQL in Flutter</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/claat-public/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  id="flutter-firebase-graphql"
+                  title="Firebase Authentication with GraphQL in Flutter"
+                  environment="web"
+                  feedback-link="https://github.com/emmanuelCode/graphql-firebase-flutter/issues/new">
+    
+      <google-codelab-step label="Getting Started" duration="0">
+        <h2 is-upgraded>Things to keep in mind</h2>
+<ul>
+<li>This codelabs was tested with Ubuntu in mind using the Terminal. For Mac and Windows, see their respective equivalent.</li>
+<li>The IDE I&#39;ve used for this codelab is VSCode, some extensions or plugins I may use not be available on other IDEs.</li>
+<li>This is my own codelab, I am not part of google nor I have been endorsed by them.</li>
+</ul>
+<h2 class="checklist" is-upgraded>What you&#39;ll learn</h2>
+<ul class="checklist">
+<li>✅ Setup your Firebase and Flutter project.</li>
+<li>✅ Configure Firebase authentication emulator.</li>
+<li>✅ Setup GraphQL with Dgraph to use Firebase authentication emulator.</li>
+<li>✅ Build a Flutter app that allow authenticated user to use the GraphQL backend.</li>
+<li>✅ Bonus: Setup GraphQL with Dgraph to use Firebase live production authentication.</li>
+</ul>
+<h2 is-upgraded>Prerequises</h2>
+<ol type="1">
+<li>A bit of Flutter knowledge, starting a GraphQL server with Dgraph, create models with Freezed and state management with Riverpod. All which are covered in my codelab <a href="https://emmanuelcode.github.io/intro-flutter-graphql/" target="_blank">Introduction of GraphQL in Flutter</a>.</li>
+<li>A bit a <a href="https://firebase.google.com/" target="_blank">Firebase</a> knowledge but not required for this codelab but I do recommend the <a href="https://firebase.google.com/codelabs/firebase-get-to-know-flutter" target="_blank">Get To Know Firebase Codelab</a> and <a href="https://firebase.google.com/codelabs/get-started-firebase-emulators-and-flutter" target="_blank">Firebase emulator suite</a> from the Flutter team.</li>
+</ol>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Setup Firebase" duration="0">
+        <h2 is-upgraded>Firebase Console</h2>
+<p>Go to your <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a>, sign in and create a new project.</p>
+<p>Enter a project name such as the following <code>graphql-firebase-flutter</code>:</p>
+<p class="image-container"><img alt="firebase_create_project_1" src="img/b9d855556e666d33.png"></p>
+<p>You won&#39;t need analytics in this codelab so you can disable it:</p>
+<p class="image-container"><img alt="firebase_create_project_2" src="img/51c8f836ac59927c.png"></p>
+<p>Once you created the project, you won&#39;t need to do anything else. So you can sign out.</p>
+<h2 is-upgraded>Firebase CLI</h2>
+<p>Next, Install the Firebase CLI tool, there three ways to install it: using the <a href="https://firebase.google.com/docs/cli#mac-linux-auto-script" target="_blank">auto install script</a>, the <a href="https://firebase.google.com/docs/cli#mac-linux-standalone-binary" target="_blank">standalone binary</a> and via the <a href="https://firebase.google.com/docs/cli#mac-linux-npm" target="_blank">Node Package Manager</a>.</p>
+<p>You might encounter a problem using the auto install script. If you do, install the standalone by downloading the <a href="https://firebase.tools/bin/linux/latest" target="_blank">binary file</a>. Open a Terminal to where you downloaded the file. Run <code>sudo mv firebase-tools-linux /usr/local/bin</code> to move the file to an appropriate place so it can be recognize by Ubuntu PATH as a global command. Then in the folder where you moved the file, make it executable with <code>chmod +x ./firebase-tools-linux</code> command or the binary won&#39;t run. And Lastly, you&#39;ll need to change the name with <code>sudo mv firebase-tools-linux firebase</code>. So you can use the <code>firebase</code> command. Once installed, try running the <code>firebase --version</code> command to see if installed properly.</p>
+<aside class="warning"><p> Be aware that you must replace the binary when a new update is available. You can run the auto install script in <code>/usr/local/bin</code> for updating or download it and setup manually. You might also want to use npm to avoid downloading updates manually.</p>
+</aside>
+<p>Create an empty flutter project and name it <code>flutter_firebase_graphql</code> of whatever name of your choosing. Run <code>firebase login</code> to sign in. You can verify if your new firebase project that you created earlier is available with <code>firebase projects:list</code></p>
+<p class="image-container"><img alt="firebase_cli_login_successful" src="img/a31feed9863276e1.png"></p>
+<p>You can also logout if you&#39;re login with a different user with <code>firebase logout</code> command.</p>
+<p>Under the flutter project directory. Run <code>firebase init</code> and answer the firebase questions. Make sure your answers look like the picture below (answers are in blue). What&#39;s important is to set up local emulators, choosing your existing project, select your firebase project from the list and choosing the Authentication emulator. The rest can all have the default values suggested.</p>
+<p class="image-container"><img alt="firebase_init" src="img/c598fbd805ee209c.png"></p>
+<h2 is-upgraded>FlutterFire CLI</h2>
+<p>Once your Firebase initialization is complete, you can now activate FlutterFire CLI by running <code>dart pub global activate firebase_cli</code> under your project directory.</p>
+<aside class="warning"><p> You will encounter a warning if it&#39;s the first time you install FlutterFire CLI. You have to make sure you set the path or you won&#39;t be able to use any FlutterFire commands. If you&#39;re wondering where your <code>.bashrc</code>, the location is <code>/home/$USER/.bashrc</code> open the file and add the <code>export PATH="$PATH":"$HOME/.pub-cache/bin"</code> at the end. It might be a good idea to add a <code>#</code> comment above as reference(eg: Dart Pub Global).</p>
+</aside>
+<p>You sould see a confirmation message once you installed it. You can verify with <code>flutterfire --version</code> command.</p>
+<p class="image-container"><img alt="firebase_init" src="img/c598fbd805ee209c.png"></p>
+<p>You can also deactivate with <code>dart pub global deactivate flutterfire_cli</code>. You can learn more on dart pub global <a href="https://dart.dev/tools/pub/cmd/pub-global" target="_blank">here</a>.</p>
+<p>Next, run <code>flutterfire configure</code> under your flutter project directory and answers the questions. Make sure your answers look like the picture below (answers are in green). Basically, you choose on which platform you want to configure firebase and accept the files changes in your project file:</p>
+<p class="image-container"><img alt="flutterfire_configure" src="img/6a3d8fdd5f9a7f25.png"></p>
+<h2 is-upgraded>Firebase Dependencies</h2>
+<p>Add your firebase dependencies. For this project we only need the <code>firebase_core</code> and <code>firebase_auth</code>. Run the following line to install them: <code>flutter pub add firebase_core firebase_auth</code>.</p>
+<p class="image-container"><img alt="flutterfire_configure" src="img/6a3d8fdd5f9a7f25.png"></p>
+<p>Now your project is firebase ready to develop with Flutter!</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="The Flutter App (Preparations)" duration="0">
+        <p>This is the app you will be building. It&#39;s a simple authentication flow that let you sign in or create an account. Once log in, you can populate a collections of cards that represents posts that you can update and delete. Tapping on those card will transition to the full post to view it&#39;s contents. The app uses the <a href="https://picsum.photos/" target="_blank">Lorem Picsum</a> api to have access to 1085 images to choose from for your posts.</p>
+<table>
+<tr><td colspan="2" rowspan="1"></td><td colspan="1" rowspan="1"></td></tr>
+<tr><td colspan="1" rowspan="1"><p class="image-container"><img src="img/599fe686489ba1d5.png"></p>
+</td><td colspan="1" rowspan="1"><p class="image-container"><img src="img/4d231fcfa6b65a9c.png"></p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p class="image-container"><img src="img/76eab063f3193db4.png"></p>
+</td><td colspan="1" rowspan="1"><p class="image-container"><img src="img/886db223bec43f98.png"></p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p class="image-container"><img src="img/b6882cd31ec9ca4f.png"></p>
+</td><td colspan="1" rowspan="1"><p class="image-container"><img src="img/ec357e420149936.png"></p>
+</td></tr>
+</table>
+<p>This will be the folder structure of the app. Starting from lib:</p>
+<pre><code>📂lib
+ ┣ 📂certificate
+ ┃ ┗ 📜lets-encrypt-r3.pem
+ ┣ 📂graphql_queries
+ ┃ ┣ 📜add_post.graphql
+ ┃ ┣ 📜delete_post.graphql
+ ┃ ┣ 📜get_list_posts.graphql
+ ┃ ┗ 📜update_post.graphql
+ ┣ 📂models
+ ┃ ┣ 📜auth.dart
+ ┃ ┣ 📜auth.g.dart
+ ┃ ┣ 📜post.dart
+ ┃ ┣ 📜post.freezed.dart
+ ┃ ┗ 📜post.g.dart
+ ┣ 📂views
+ ┃ ┣ 📜add_or_update_post_sheet.dart
+ ┃ ┣ 📜post_list_screen.dart
+ ┃ ┣ 📜show_post_screen.dart
+ ┃ ┗ 📜signup_or_login_screen.dart
+ ┣ 📜firebase_options.dart
+ ┣ 📜graphql_client.dart
+ ┗ 📜main.dart
+</code></pre>
+<p>There is also a <code>schema.graphql</code> file in the top level of the project which is an important element of the app.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="The GraphQL Side" duration="0">
+        <h2 is-upgraded>Schema</h2>
+<p>The schema will contain a type <code>Post</code> and you&#39;ll need the fields describe here for the app. There a few things you must pay special attention: the <code>@auth</code> along with the <code>postOwnerID</code> and the <code>Dgraph.Authorization</code> line.</p>
+<p>The <a href="https://dgraph.io/docs/v21.03/graphql/authorization/directive/" target="_blank"><code>@auth</code>  directive</a> is a special keyword in Dgraph to manage control access on the type. Here you&#39;re telling for each of the queries(query, add, delete, update) only the <code>postOwnerID</code> can have read or write access to the type <code>Post</code>. The <code>postOwnerID</code> will be provided by you when you&#39;ll add a new post. A <code>@search</code> directive is needed in <code>postOwnerID</code> to filter and match the condition in the <code>@auth</code> directive. You&#39;ll notice that the condition you test is the <code>eq</code> value which is the <code>$user_id</code> variable. The <code>$user_id</code> variable will come from Firebase but how Dgraph is aware of Firebase variable? The answer lies in the <code>Dgraph.Authorization</code>.</p>
+<p>Do not mistake the <code>Dgraph.Authorization</code> as commented code. Dgraph uses the last line of the schema to handle authentification for third party provider such as Firebase. It&#39;s always define with a hashtag in front along with the configurations.</p>
+<p>Here&#39;s an explanation of each:</p>
+<p><code>Header</code>: Will be used when you&#39;ll be communicating with the graphql address <code>http://localhost:8080/graphql</code>. It&#39;s an entry point where you usally pass info from Firebase to GraphQL backend such as the token.</p>
+<p><code>VerificationKey</code>: Is a secret keyword that is required to order to allow access to the backend information. You can think of it as a key to enter your house.</p>
+<p><code>Algo</code>: Is the algorithm that your secret keyword is using. Think of it as a key shape for your front door lock of your house.</p>
+<p><code>Namespace</code>: Is a url that you define that can contain extra variable to use in your backend such a role based acces (eg: Admin, User etc.). The url can be anything even if it&#39;s doesn&#39;t exist. In the end, it&#39;s just an identifier.</p>
+<p><code>Audience</code>: This is where you put your firebase project id. It allows Firebase to handle the intented Audience for the token.</p>
+<p><code>ClosedByDefault</code>: Tell you if you&#39;re GraphQL api is available to the public or for private use (only authenticated users) regarless of whether or not you define an <code>@auth</code> directive in the schema.</p>
+<p>If you need a more in depth explanation. You can see Dgraph doc on <a href="https://dgraph.io/docs/v21.03/graphql/authorization/authorization-overview/" target="_blank">Overview of Authorization and Authentication with GraphQL</a>.</p>
+<ul>
+<li><code>schema.graphql</code>:</li>
+</ul>
+<pre><code language="language-graphql" class="language-graphql">type Post @auth(
+ query: { rule: &#34;query($user_id: String!) { queryPost(filter: { postOwnerID: { eq: $user_id } })  { id } } &#34; }
+ add: { rule: &#34;query($user_id: String!) { queryPost(filter: { postOwnerID: { eq: $user_id } })  { id } } &#34; }
+ delete: { rule: &#34;query($user_id: String!) { queryPost(filter: { postOwnerID: { eq: $user_id } })  { id } } &#34; }
+ update: { rule: &#34;query($user_id: String!) { queryPost(filter: { postOwnerID: { eq: $user_id } })  { id } } &#34; }
+) {
+  id: ID!
+  title: String!
+  imageUrl: String!
+  text: String!
+  dateTime: DateTime!
+  postOwnerID: String! @search(by:[hash])
+}
+
+
+# Dgraph.Authorization {&#34;Header&#34;:&#34;X-Auth-Token&#34;, &#34;VerificationKey&#34;:&#34;secret&#34;,&#34;Algo&#34;:&#34;HS256&#34;, &#34;Namespace&#34;:&#34;https://dgraph.io/jwt/claims&#34;,&#34;Audience&#34;:[&#34;graphql-firebase-flutter&#34;], &#34;ClosedByDefault&#34;:true}
+</code></pre>
+<h2 is-upgraded>Firebase Token</h2>
+<p>Following the setup of your Dgraph schema file, you will need a dart file to able to communicate with it. What important to know here is that you need to pass in a value to <code>headerKey</code>, so you can communicate with the backend and pass a token provided by Firebase. The Firebase Authentication Emulator only send unsign token <a href="https://firebase.google.com/docs/emulator-suite/connect_auth#id_tokens" target="_blank">by design</a>. Dgraph needs sign token in order to make requests. You have to sign the token yourself.</p>
+<p>Luckily, you have two packages that allows you to decode the token and sign it. You&#39;ll need a method to handle the unsighed token. Install these two dependencies by running <code>flutter pub add jwt_decoder jaguar_jwt</code>.</p>
+<p>Something to point out in the <code>_signFirebaseToken</code> method is once you decode the Firebase token and format it you&#39;ll received an object that look similar to this:</p>
+<pre><code language="language-json" class="language-json">{
+email: dash@email.com, 
+email_verified: false,
+auth_time: 1701055195,
+user_id: 80zD0axyuG0LAkhqQIcPqngfqEUr, 
+firebase: {identities: {email: [dash@email.com]}, sign_in_provider: password}, 
+iat: 1701055195, 
+exp: 1701058795, 
+aud: graphql-firebase-flutter, 
+iss: https://securetoken.google.com/graphql-firebase-flutter, 
+sub: 80zD0axyuG0LAkhqQIcPqngfqEUr
+}
+
+</code></pre>
+<p>Those are values that Dgraph schema can have access since you do pass the token in the <code>X-Auth-Token</code> header from the GraphQL http link. If you remember, the <code>$user_id</code> that you use earlier in the schema takes reference to the <code>user_id</code> from the decoded token.</p>
+<p>This is how your file should look like to handle your token:</p>
+<ul>
+<li><code>graphql_client.dart</code></li>
+</ul>
+<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/foundation.dart&#39;;
+import &#39;package:graphql/client.dart&#39;;
+import &#39;package:jaguar_jwt/jaguar_jwt.dart&#39;;
+import &#39;package:jwt_decoder/jwt_decoder.dart&#39;;
+
+GraphQLClient graphQLClientInit(String token) {
+  final httpLink = HttpLink(
+    &#39;http://localhost:8080/graphql&#39;,
+  );
+
+  final authLink = AuthLink(
+    getToken: () async =&gt;
+        _signFirebaseToken(token), //&#39;Bearer $YOUR_PERSONAL_ACCESS_TOKEN&#39;,
+    headerKey: &#39;X-Auth-Token&#39;,
+  );
+
+  Link link = authLink.concat(httpLink);
+
+  return GraphQLClient(
+    cache: GraphQLCache(),
+    link: link,
+  );
+}
+
+
+String _signFirebaseToken(String token) {
+  if (kDebugMode) {
+    try {
+      var decoded = JwtDecoder.decode(token);
+      debugPrint(&#39;DECODED: $decoded&#39;);
+      var claims = JwtClaim.fromMap(decoded, defaultIatExp: false);
+      debugPrint(&#39;CLAIMS: $claims&#39;);
+      return issueJwtHS256(claims, &#39;secret&#39;);
+    } catch (e) {
+      print(&#34;Got unexpected exception (will return unmodified token): $e&#34;);
+      return token;
+    }
+  } else {
+    return token;
+  }
+}
+
+</code></pre>
+<h2 is-upgraded>Queries</h2>
+<p>This will be the queries to create, read, update and delete that you&#39;ll be using inside the app:</p>
+<ul>
+<li><code>add_post.graphql</code></li>
+</ul>
+<pre><code language="language-graphql" class="language-graphql">mutation addPost($post: [AddPostInput!]!) {
+  addPost(input: $post) {
+    post {
+      id 
+      title
+      imageUrl
+      text
+      dateTime
+    }
+  }
+}
+</code></pre>
+<ul>
+<li><code>delete_post.graphql</code></li>
+</ul>
+<pre><code language="language-graphql" class="language-graphql">mutation deletePost($filter: PostFilter!) {
+   deletePost(filter: $filter) {
+     msg
+     post {
+       id
+       title
+       imageUrl
+       text
+       dateTime    
+     }
+   }
+}
+</code></pre>
+<ul>
+<li><code>get_list_posts.graphql</code></li>
+</ul>
+<pre><code language="language-graphql" class="language-graphql">query getPosts(){
+  queryPost {
+    id
+    title
+    imageUrl
+    text
+    dateTime
+    postOwnerID
+  }
+}
+</code></pre>
+<ul>
+<li><code>update_post.graphql</code></li>
+</ul>
+<pre><code language="language-graphql" class="language-graphql">mutation updatePost ($patch: UpdatePostInput!) {
+  updatePost(input: $patch) {
+    post {
+      id
+      title
+      text
+      imageUrl
+      dateTime
+    }
+  }
+}
+</code></pre>
+<p>Your graphql files will serve as assets in your code to read the string, so you must declare the assets at the end of your <code>pubspec.yaml</code> file :</p>
+<pre><code language="language-yaml" class="language-yaml">  assets:
+    - lib/graphql_queries/
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Building The Model" duration="0">
+        <p>To explain it briefly, you&#39;ll have an <code>Auth</code> class to handle Firebase login. Take note that the field <code>id</code> will get assign the same <code>user_id</code> that our decoded token ealier. You will pass this value in the <code>UsersPosts</code> class build method where you track the list of posts state. The <code>createPost</code> method will use the id while doing the client mutation which will then be handle by the backend user authorization rules. You&#39;ll also have a <code>Post</code> model which will reflect the data types in your schema.</p>
+<ul>
+<li><code>auth.dart</code></li>
+</ul>
+<pre><code language="language-dart" class="language-dart">import &#39;package:firebase_auth/firebase_auth.dart&#39;;
+import &#39;package:flutter/foundation.dart&#39;;
+import &#39;package:graphql/client.dart&#39;;
+import &#39;package:riverpod_annotation/riverpod_annotation.dart&#39;;
+
+import &#39;../graphql_client.dart&#39;;
+
+part &#39;auth.g.dart&#39;;
+
+// this riverpod class gives me the state of Firebase User variable
+// where I can get info on the user such as token, name, email etc.
+@Riverpod(keepAlive: true) // the username/token/id variables won&#39;t get disposed
+class Auth extends _$Auth {
+  String? username;
+  String? token;
+  String? id;
+
+  @override
+  User? build() =&gt; FirebaseAuth.instance.currentUser;
+
+  Future&lt;void&gt; logIn(String email, String password) async {
+    final credential = await FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: email, password: password);
+    if (credential.user != null) {
+      state = credential.user!;
+      token = await state?.getIdToken();
+      username = state!.displayName;
+      debugPrint(&#39;STATE: $state&#39;);
+      debugPrint(&#39;logged in as ${state!.displayName}&#39;);
+      id = state!.uid;
+      debugPrint(&#39;USER_ID: $id&#39;);
+    } else {
+      debugPrint(&#39;no user!&#39;);
+    }
+  }
+
+  Future&lt;void&gt; signUp(String name, String email, String password) async {
+    final credential = await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(email: email, password: password);
+    if (credential.user != null) {
+      username = name; //set the name if user not null
+      state = credential.user!;
+      token = await state?.getIdToken();
+      // will not be available on account creation (state!.displayName)
+      await state!.updateDisplayName(name);
+      debugPrint(&#39;logged in as $username&#39;);
+      id = state!.uid;
+      debugPrint(&#39;USER_ID: $id&#39;);
+    } else {
+      debugPrint(&#39;no user!&#39;);
+    }
+  }
+
+  Future&lt;void&gt; logOut() async {
+    await FirebaseAuth.instance.signOut();
+  }
+}
+
+@riverpod
+GraphQLClient graphQLClient(GraphQLClientRef ref, String token) =&gt;
+    graphQLClientInit(token);
+    
+</code></pre>
+<ul>
+<li><code>post.dart</code></li>
+</ul>
+<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/foundation.dart&#39;;
+import &#39;package:flutter/services.dart&#39;;
+import &#39;package:freezed_annotation/freezed_annotation.dart&#39;;
+// hide the JsonSerializable as there is a library conflict with json_annotation
+import &#39;package:graphql/client.dart&#39; hide JsonSerializable;
+import &#39;package:riverpod_annotation/riverpod_annotation.dart&#39;;
+
+part &#39;post.g.dart&#39;;
+
+part &#39;post.freezed.dart&#39;;
+
+@freezed
+class Post with _$Post {
+  const factory Post({
+    required String id,
+    required String title,
+    required String imageUrl,
+    required String text,
+    required DateTime dateTime,
+  }) = _Post;
+  factory Post.fromJson(Map&lt;String, Object?&gt; json) =&gt; _$PostFromJson(json);
+}
+
+@riverpod
+class UserPosts extends _$UserPosts {
+  @override
+  Future&lt;List&lt;Post&gt;&gt; build(GraphQLClient client, String userID) async {
+    return _getPosts();
+  }
+
+
+  Future&lt;void&gt; createPost({
+    required String title,
+    required String imageID,
+    required String text,
+  }) async {
+    // set the state to loading
+    state = const AsyncValue.loading();
+
+    final String addPostMutation =
+        await rootBundle.loadString(&#39;lib/graphql_queries/add_post.graphql&#39;);
+
+    final MutationOptions options = MutationOptions(
+      document: gql(addPostMutation),
+      variables: &lt;String, dynamic&gt;{
+        // the variable put here must match the query variable ($post)
+        &#39;post&#39;: {
+          &#39;title&#39;: title,
+          &#39;imageUrl&#39;: &#39;https://picsum.photos/id/$imageID/300/300&#39;,
+          &#39;text&#39;: text,
+          &#39;dateTime&#39;: DateTime.now().toIso8601String(),
+          &#39;postOwnerID&#39;: userID,
+        }
+      },
+    );
+
+    // update the state when future finishes
+    state = await AsyncValue.guard(() async {
+      // get the graphql client to perform queries and mutation
+      final QueryResult result = await client.mutate(options);
+
+      if (result.hasException) {
+        debugPrint(&#39;${result.exception}&#39;);
+      }
+      debugPrint(&#39;ADDED: ${result.data}&#39;);
+
+      return _getPosts();
+    });
+  }
+
+  Future&lt;void&gt; updatePost({
+    required String id,
+    required String title,
+    required String imageID,
+    required String text,
+  }) async {
+    // set the state to loading
+    state = const AsyncValue.loading();
+
+    final String updatePostMutation =
+        await rootBundle.loadString(&#39;lib/graphql_queries/update_post.graphql&#39;);
+
+    final MutationOptions options = MutationOptions(
+      document: gql(updatePostMutation),
+      variables: &lt;String, dynamic&gt;{
+        // the variable put here must match the query variable ($patch)
+        &#39;patch&#39;: {
+          &#39;filter&#39;: {
+            &#39;id&#39;: [id],
+          },
+          &#39;set&#39;: {
+            &#39;title&#39;: title,
+            &#39;imageUrl&#39;: &#39;https://picsum.photos/id/$imageID/300/300&#39;,
+            &#39;text&#39;: text,
+            &#39;dateTime&#39;: DateTime.now().toIso8601String(),
+            // here we don&#39;t need to update the ownwer so we omit postOwnerID
+          }
+        }
+      },
+    );
+
+    // update the state when future finishes
+    state = await AsyncValue.guard(() async {
+      // get the graphql client to perform queries and mutation
+      final QueryResult result = await client.mutate(options);
+
+      if (result.hasException) {
+        debugPrint(&#39;${result.exception}&#39;);
+      }
+      debugPrint(&#39;UPDATE: ${result.data}&#39;);
+
+      return _getPosts();
+    });
+  }
+
+  Future&lt;void&gt; deletePost({required String id}) async {
+    // set the state to loading
+    state = const AsyncValue.loading();
+
+    final String addPostMutation =
+        await rootBundle.loadString(&#39;lib/graphql_queries/delete_post.graphql&#39;);
+
+    final MutationOptions options = MutationOptions(
+      fetchPolicy: FetchPolicy.noCache,
+      document: gql(addPostMutation),
+      variables: &lt;String, dynamic&gt;{
+        // the variable put here must match the query variable ($filter)
+        &#39;filter&#39;: {
+          &#39;id&#39;: id,
+        }
+      },
+    );
+
+    // update the state when future finishes
+    state = await AsyncValue.guard(() async {
+      // get the graphql client to perform queries and mutation
+      final QueryResult result = await client.mutate(options);
+
+      if (result.hasException) {
+        debugPrint(&#39;${result.exception}&#39;);
+      }
+      debugPrint(&#39;DELETED: ${result.data}&#39;);
+
+      return _getPosts();
+    });
+  }
+
+  // get all posts entered
+  Future&lt;List&lt;Post&gt;&gt; _getPosts() async {
+    final String getPostsQuery = await rootBundle
+        .loadString(&#39;lib/graphql_queries/get_list_posts.graphql&#39;);
+
+    final QueryOptions options = QueryOptions(
+      fetchPolicy: FetchPolicy.noCache,
+      document: gql(getPostsQuery),
+      variables: const &lt;String, dynamic&gt;{},
+    );
+
+    //get the graphql client to perform queries and mutation
+    final QueryResult result = await client.query(options);
+
+    if (result.hasException) {
+      debugPrint(&#39;${result.exception}&#39;);
+    }
+
+    debugPrint(&#39;${result.data}&#39;);
+
+    final List&lt;dynamic&gt; queryArray = result.data![&#39;queryPost&#39;];
+
+    List&lt;Post&gt; posts = queryArray.map((e) =&gt; Post.fromJson(e)).toList();
+
+    debugPrint(&#39;ALL POSTS: $posts&#39;);
+
+    return posts;
+  }
+}
+
+
+</code></pre>
+<p>Make sure you install the <a href="https://docs-v2.riverpod.dev/docs/introduction/getting_started#installing-the-package" target="_blank">riverpod dependencies</a> along with the <a href="https://pub.dev/packages/freezed#install" target="_blank">freezed dependencies</a></p>
+<p>Don&#39;t forget to run <code>dart pub build_runner -d</code> or <code>dart pub build_runner watch -d</code> to generate the part files.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Adding The Widgets" duration="0">
+        <p>For the Widgets you&#39;ll need the following code:</p>
+<p>This is where you&#39;ll enter text to sign in or create a new user.</p>
+<ul>
+<li><code>signup_or_login_screen.dart</code>:</li>
+</ul>
+<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
+import &#39;package:flutter_firebase_graphql/views/post_list_screen.dart&#39;;
+import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
+
+import &#39;../models/auth.dart&#39;;
+
+class SignUpOrLogin extends ConsumerStatefulWidget {
+  const SignUpOrLogin({super.key});
+
+  @override
+  SignUpOrLoginState createState() =&gt; SignUpOrLoginState();
+}
+
+class SignUpOrLoginState extends ConsumerState&lt;SignUpOrLogin&gt; {
+  late bool _login;
+  late Auth _auth;
+
+  final _textEditName = TextEditingController();
+  final _textEditEmail = TextEditingController();
+  final _textEditPass = TextEditingController();
+
+  int _bottomNavigationBarIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _login = true;
+    _auth = ref.read(authProvider.notifier);
+  }
+
+  InputDecoration _decoration(String value) {
+    return InputDecoration(
+        border: const OutlineInputBorder(), labelText: value);
+  }
+
+  _setLogin(bool login) {
+    _login = login;
+    //reset text field when changing state
+    _textEditName.text = &#39;&#39;;
+    _textEditEmail.text = &#39;&#39;;
+    _textEditPass.text = &#39;&#39;;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(&#39;Firebase/GraphQL&#39;),
+      ),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (!_login) ...[
+                  TextFormField(
+                    controller: _textEditName,
+                    decoration: _decoration(&#39;Name&#39;),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+                TextFormField(
+                  controller: _textEditEmail,
+                  decoration: _decoration(&#39;Email&#39;),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _textEditPass,
+                  decoration: _decoration(&#39;Password&#39;),
+                  obscureText: true,
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton(
+                  onPressed: () async {
+                    _login
+                        ? await _auth.logIn(
+                            _textEditEmail.text, _textEditPass.text)
+                        : await _auth.signUp(_textEditName.text,
+                            _textEditEmail.text, _textEditPass.text);
+
+                    if (_auth.username != null &amp;&amp; context.mounted) {
+                      await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =&gt; const PostsListScreen()));
+                    }
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text(&#39;Sign Out&#39;)));
+                    }
+                  },
+                  child: Text(_login ? &#39;Login&#39; : &#39;SignUp&#39;),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: (index) {
+          _bottomNavigationBarIndex = index;
+          if (index == 0) {
+            setState(() =&gt; _setLogin(true));
+          } else {
+            setState(() =&gt; _setLogin(false));
+          }
+        },
+        showSelectedLabels: true,
+        currentIndex: _bottomNavigationBarIndex,
+        items: const [
+          BottomNavigationBarItem(
+              icon: Icon(Icons.login_outlined), label: &#39;Login&#39;),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.create_outlined), label: &#39;SignUp&#39;),
+        ],
+      ),
+    );
+  }
+}
+
+</code></pre>
+<p>This is where you&#39;ll have your posts list in card format.</p>
+<ul>
+<li><code>post_list_screen.dart</code>:</li>
+</ul>
+<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
+import &#39;package:flutter_firebase_graphql/models/post.dart&#39;;
+import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
+
+import &#39;../models/auth.dart&#39;;
+import &#39;add_or_update_post_sheet.dart&#39;;
+import &#39;show_post_screen.dart&#39;;
+
+class PostsListScreen extends ConsumerWidget {
+  const PostsListScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final auth = ref.watch(authProvider.notifier);
+    final userName = auth.username;
+    final userID = auth.id!;
+    final graphqlClient = ref.watch(graphQLClientProvider(auth.token!));
+    final userPosts =
+        ref.watch(userPostsProvider(graphqlClient, userID).notifier);
+
+    final PageController controller = PageController();
+
+    return PopScope(
+      onPopInvoked: (value) async {
+        Auth auth = ref.read(authProvider.notifier);
+        await auth.logOut();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(&#39;$userName\&#39;s Posts&#39;),
+        ),
+        body: ref.watch(userPostsProvider(graphqlClient, userID)).when(
+              data: (posts) =&gt; posts.isEmpty
+                  ? const Center(child: Text(&#39;No Posts&#39;))
+                  : PageView(
+                      controller: controller,
+                      children: [
+                        ListView.builder(
+                          padding: const EdgeInsets.all(8.0),
+                          shrinkWrap: true,
+                          itemCount: posts.length,
+                          itemBuilder: (context, index) {
+                            return PostCard(
+                              post: posts[index],
+                              onTap: () =&gt; controller.animateToPage(
+                                // +1 since we have a list to first index
+                                index + 1,
+                                duration: const Duration(seconds: 1),
+                                curve: Curves.linearToEaseOut,
+                              ),
+                              onDelete: () async =&gt; await userPosts.deletePost(
+                                id: posts[index].id,
+                              ),
+                              updatePost: userPosts.updatePost,
+                            );
+                          },
+                        ),
+                        for (var post in posts)
+                          ShowPostScreen(
+                            title: post.title,
+                            text: post.text,
+                            created: post.dateTime,
+                            imageUrl: post.imageUrl,
+                          )
+                      ],
+                    ),
+              error: (e, s) =&gt; Text(&#39;Error: $e,$s&#39;),
+              loading: () =&gt;
+                  const Center(child: CircularProgressIndicator.adaptive()),
+            ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
+        floatingActionButton: FloatingActionButton(
+          child: const Icon(Icons.add),
+          onPressed: () =&gt; showModalBottomSheet(
+            context: context,
+            builder: (context) =&gt; AddOrUpdatePostSheet(
+              createPost: userPosts.createPost,
+            ),
+            isScrollControlled: true,
+            useSafeArea: true,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PostCard extends StatelessWidget {
+  final Post post;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
+  final Future&lt;void&gt; Function({
+    required String id,
+    required String imageID,
+    required String text,
+    required String title,
+  }) updatePost;
+
+  const PostCard({
+    super.key,
+    required this.post,
+    required this.onTap,
+    required this.onDelete,
+    required this.updatePost,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: InkWell(
+        borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+        onTap: onTap,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 16.0),
+              child: Image.network(post.imageUrl),
+            ),
+            ListTile(
+              leading: IconButton(
+                icon: const Icon(Icons.edit_note),
+                onPressed: () =&gt; showModalBottomSheet(
+                  context: context,
+                  builder: (context) =&gt; AddOrUpdatePostSheet(
+                    updatePost: updatePost,
+                    currentPost: post,
+                  ),
+                  isScrollControlled: true,
+                  useSafeArea: true,
+                ),
+              ),
+              title: Text(post.title),
+              subtitle: Text(post.dateTime.toIso8601String()),
+              trailing: IconButton(
+                onPressed: onDelete,
+                icon: const Icon(Icons.delete),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+</code></pre>
+<p>When you tap on the card, this is where you view the detail in page format.</p>
+<ul>
+<li><code>show_post_screen.dart</code>:</li>
+</ul>
+<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
+
+class ShowPostScreen extends StatelessWidget {
+  final String title;
+  final String imageUrl;
+  final String text;
+  final DateTime created;
+
+  const ShowPostScreen({
+    required this.title,
+    required this.imageUrl,
+    required this.text,
+    required this.created,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 8),
+            Text(title, style: Theme.of(context).textTheme.titleLarge),
+            Text(created.toIso8601String(),
+                style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: 8),
+            Image.network(imageUrl),
+            const SizedBox(height: 16),
+            Text(text, style: Theme.of(context).textTheme.bodyLarge),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+</code></pre>
+<p>This widget will be responsable to add a new post or update existing post.</p>
+<ul>
+<li><code>add_or_update_post_sheet.dart</code>:</li>
+</ul>
+<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
+import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
+
+import &#39;../models/post.dart&#39;;
+
+class AddOrUpdatePostSheet extends ConsumerWidget {
+  AddOrUpdatePostSheet({
+    this.currentPost,
+    this.createPost,
+    this.updatePost,
+    super.key,
+  });
+
+  InputDecoration _decoration(String value) {
+    return InputDecoration(
+        labelText: value, border: const OutlineInputBorder());
+  }
+
+  final _formKey = GlobalKey&lt;FormState&gt;();
+
+  final Future&lt;void&gt; Function({
+    required String imageID,
+    required String text,
+    required String title,
+  })? createPost;
+
+  final Future&lt;void&gt; Function({
+    required String id,
+    required String imageID,
+    required String text,
+    required String title,
+  })? updatePost;
+
+  final Post? currentPost;
+
+  String? _emptyValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return &#39;Please enter some text&#39;;
+    }
+    return null;
+  }
+
+  bool _isUpdating() {
+    return updatePost != null &amp;&amp; currentPost != null;
+  }
+
+  String _extractImageID(String imageUrl) {
+    const String start = &#39;id/&#39;;
+    const String end = &#39;/300&#39;;
+    final startIndex = imageUrl.indexOf(start);
+    final endIndex = imageUrl.indexOf(end, startIndex + start.length);
+    return imageUrl.substring(startIndex + start.length, endIndex);
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final textEditTitle = _isUpdating()
+        ? TextEditingController(text: currentPost!.title)
+        : TextEditingController();
+    final textEditNumber = _isUpdating()
+        ? TextEditingController(text: _extractImageID(currentPost!.imageUrl))
+        : TextEditingController();
+    final textEditText = _isUpdating()
+        ? TextEditingController(text: currentPost!.text)
+        : TextEditingController();
+
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    !_isUpdating() ? &#39;New Post&#39; : &#39;Update Post&#39;,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () =&gt; Navigator.pop(context),
+                    child: const Icon(Icons.cancel),
+                  )
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                decoration: _decoration(&#39;title&#39;),
+                controller: textEditTitle,
+                validator: _emptyValidator,
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                decoration: _decoration(&#39;number 0 to 1084&#39;),
+                controller: textEditNumber,
+                validator: (value) {
+                  int? number = int.tryParse(value!);
+                  if (number == null || value.isEmpty) {
+                    return &#39;Please enter a number&#39;;
+                  }
+
+                  if (number &lt; 0 || number &gt; 1084) {
+                    return &#39;Please enter a number of 0 to 1084&#39;;
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                decoration: _decoration(&#39;text&#39;),
+                controller: textEditText,
+                validator: _emptyValidator,
+                maxLines: 5,
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    if (_isUpdating()) {
+                      await updatePost!(
+                        id: currentPost!.id,
+                        title: textEditTitle.text,
+                        imageID: textEditNumber.text,
+                        text: textEditText.text,
+                      );
+                    } else {
+                      await createPost!(
+                        title: textEditTitle.text,
+                        imageID: textEditNumber.text,
+                        text: textEditText.text,
+                      );
+                    }
+
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                    }
+                  }
+                },
+                child: const Text(&#39;Done&#39;),
+              ),
+              SizedBox(height: MediaQuery.of(context).viewInsets.bottom)
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+</code></pre>
+<p>Make sure you take the time to read and understand code.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Running The App" duration="0">
+        <p>Before running the app on your smartphone. You&#39;ll need to do a bit of preparation.</p>
+<p>In your main method, you&#39;ll need an instance of the authentication emulator and this is how you should set it up:</p>
+<ul>
+<li><code>main.dart</code></li>
+</ul>
+<pre><code language="language-dart" class="language-dart">import &#39;dart:io&#39;;
+
+import &#39;package:firebase_auth/firebase_auth.dart&#39;;
+import &#39;package:firebase_core/firebase_core.dart&#39;;
+import &#39;package:flutter/foundation.dart&#39;;
+import &#39;package:flutter/material.dart&#39;;
+import &#39;package:flutter/services.dart&#39;;
+import &#39;package:flutter_firebase_graphql/views/signup_or_login_screen.dart&#39;;
+import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
+
+import &#39;firebase_options.dart&#39;;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  updateCertificateForOlderDevice();
+
+  // initialize firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  if (kDebugMode) {
+    try {
+      // uses emulator
+      await FirebaseAuth.instance.useAuthEmulator(&#39;0.0.0.0&#39;, 9099);
+    } catch (e) {
+      debugPrint(&#39;$e&#39;);
+    }
+  }
+
+  runApp(const ProviderScope(child: MyApp()));
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: &#39;Firebase/GraphQL Demo&#39;,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
+      home: const SignUpOrLogin(),
+    );
+  }
+}
+
+// update certificate on older device that don&#39;t have support
+// for the new certificate.
+// to avoid the error :
+// Handshake error in client (OS Error: CERTIFICATE_VERIFY_FAILED: certificate has expired(handshake.cc:393))
+// when using Image.network() widget
+void updateCertificateForOlderDevice() async {
+  if (!kIsWeb) {
+    ByteData data =
+        await PlatformAssetBundle().load(&#39;lib/certificate/lets-encrypt-r3.pem&#39;);
+    SecurityContext.defaultContext
+        .setTrustedCertificatesBytes(data.buffer.asUint8List());
+  }
+}
+
+</code></pre>
+<aside class="warning"><p> Devices running Android Nougat 7.1.1 and earlier versions won&#39;t see the images in the app. Instead you&#39;ll receive an error. That&#39;s because those devices does not contains the new certificate to load those images. That is why you&#39;ll notice that there a certificate method <code>updateCertificateForOlderDevice()</code>. If you&#39;re running the code in a device that is old make sure you add the <code>lets-encrypt-r3.pem</code> file to your <code>pubspec.yaml</code> assets.</p>
+</aside>
+<p>If you&#39;re running on a Android device you&#39;ll need to connect it with the Firebase Authentication Emulator host and you can&#39;t use <code>localhost</code> or <code>127.0.0.1</code> when you declare this line in <code>FirebaseAuth.instance.useAuthEmulator(host, port)</code> in <code>main.dart</code>. Unfortunatety, it will always be remapped to the android emulator and not the device. It will show in the logs as <code>Mapping Auth Emulator host 127.0.0.1 to "10.0.2.2"</code>. To bypass this problem, you&#39;ll need to set the <code>host</code> to  <code>0.0.0.0</code> in your generated <code>firebase.json</code> file and set the host in <code>main.dart</code> to <code>FirebaseAuth.instance.useAuthEmulator(0.0.0.0, port)</code>.</p>
+<ul>
+<li><code>firebase.json</code></li>
+</ul>
+<pre><code language="language-json" class="language-json">{
+  &#34;emulators&#34;: {
+    &#34;auth&#34;: {
+      &#34;port&#34;: 9099,
+      &#34;host&#34;: &#34;0.0.0.0&#34;
+    },
+    &#34;ui&#34;: {
+      &#34;enabled&#34;: true
+    },
+    &#34;singleProjectMode&#34;: true
+  }
+}
+
+</code></pre>
+<p>Next, you&#39;ll need to start up the servers in the Terminal:</p>
+<ul>
+<li>Start Firebase authentication emulator: <code>firebase emulators:start</code></li>
+<li>Start Dgraph local backend: <code>sudo docker run --rm -it -p 8080:8080 -p 9080:9080 dgraph/standalone:latest</code></li>
+<li>Push Dgraph schema to the backend: <code>curl -X POST localhost:8080/admin/schema --data-binary '@schema.graphql</code></li>
+</ul>
+<p>While your android phone is connected via USB, use the adb binary in android sdk folder (default location: <code>/home/$USER/Android/Sdk/platform-tools</code>) to connect your device to the servers:</p>
+<ul>
+<li>Connect to Dgraph Backend: <code>./adb reverse tcp:8080 tcp:8080</code></li>
+<li>Connect to Firebase authentication emulator: <code>./adb reverse tcp:9099 tcp:9099</code></li>
+</ul>
+<p>Finally, run the app in your IDE.</p>
+<p>If you have trouble running the app, you can compare your code from the github repository.</p>
+<p><a href="https://github.com/emmanuelCode/graphql-firebase-flutter" target="_blank"><paper-button class="colored" raised>View Codelab Code</paper-button></a></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Congratulations!" duration="0">
+        <p>You&#39;re now able to use Firebase authentication and connect it to GraphQL backend. You&#39;re on your way of being a master of your craft.</p>
+<h2 is-upgraded>References</h2>
+<p>Some references that help me with the contents of this codelab.</p>
+<p><a href="https://dgraph.io/blog/post/putting-it-all-together-part2/" target="_blank">Dgraph Authentication, Authorization, and Granular Access Control</a></p>
+<p><a href="https://dgraph.io/docs/graphql/queries/search-filtering/" target="_blank">Dgraph @search directive</a></p>
+<p><a href="https://dgraph.io/docs/graphql/security/jwt/" target="_blank">Handle JWT token</a></p>
+<p><a href="https://codewithandrea.com/articles/flutter-use-async-value-not-future-stream-builder/#asyncvalue-as-an-alternative-to-asyncsnapshot" target="_blank">AsyncValue as an alternative to AsyncSnapshot</a></p>
+<p><a href="https://stackoverflow.com/a/73494005" target="_blank">Firebase emulator connect with real device</a></p>
+<p><a href="https://blog.grio.com/2015/07/android-tip-adb-reverse.html" target="_blank">Connecting your android phone to local server</a></p>
+<h2 is-upgraded>Feedback</h2>
+<p>This codelab may have some issues and to me this is only a draft, they are improvements that can be done. If you found a problem or have suggestions, you can click the <code>report a mistake</code> on the bottom left of the codelab it will open a github issue.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Bonus: Firebase Live" duration="0">
+        <p>It&#39;s great that you can authenticate with the firebase emulator for testing your local environment but what if you want to do it at a production level. Well, this is what you&#39;ll cover in the next sections.</p>
+<h2 is-upgraded>Enable Email/Password Authentification</h2>
+<p>First you&#39;ll need to go to your <a href="https://console.firebase.google.com/" target="_blank">Firebase console</a>:</p>
+<p class="image-container"><img alt="email_auth_01" src="img/363abcdf61711307.png"></p>
+<p>On the left panel, select authentification and click on &#34;Get Started&#34;:</p>
+<p class="image-container"><img alt="email_auth_02" src="img/b36bce5fba75395b.png"></p>
+<p>Under &#34;Native provider&#34;, select &#34;Email/Password&#34;:</p>
+<p class="image-container"><img alt="email_auth_03" src="img/6b31f7da4934ae18.png"></p>
+<p>In &#34;Sign in providers&#34; you will see check next to &#34;Email/Password&#34;:</p>
+<p class="image-container"><img alt="email_auth_04" src="img/7b717e2c8ef446bb.png"></p>
+<p>Enable the &#34;Email/Password&#34; check then click &#34;Save&#34;:</p>
+<p class="image-container"><img alt="email_auth_05" src="img/7b41b70e9996af80.png"></p>
+<p>Then you should see an &#34;Enabled&#34; under &#34;Status&#34;:</p>
+<p class="image-container"><img alt="email_auth_06" src="img/f20225c2a8184cc6.png"></p>
+<p>Now you&#39;re all set to authenticate your users.</p>
+<h2 is-upgraded>Dgraph Authorization</h2>
+<p>Taking the Flutter app, you&#39;ll need to change the authorization line in the <code>schema.graphql</code> to this line:</p>
+<pre><code language="language-graphql" class="language-graphql"># Dgraph.Authorization {&#34;Header&#34;:&#34;X-Auth-Token&#34;, &#34;JWKUrl&#34;:&#34;https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com&#34;, &#34;Namespace&#34;:&#34;https://dgraph.io/jwt/claims&#34;,&#34;Audience&#34;:[&#34;graphql-firebase-flutter&#34;], &#34;ClosedByDefault&#34;:true}
+</code></pre>
+<p>Compared with what you had ealier, you removed the <code>VerificationKey</code> and <code>Algo</code>. Then we added a new <code>JWKURL</code> which stand for JSON Web Key url. The JSON Web Key are hosted by Firebase.</p>
+<h2 is-upgraded>Code Changes</h2>
+<p>Since you no longer using the Firebase emulator. You&#39;ll now receive signed token. So in the <code>graphql_client.dart</code> file, you can remove the <code>_signFirebaseToken(token)</code> and replace with <code>token</code>. You can also delete the method along with removing the <code>jwt_decoder</code> and <code>jaguar_jwt</code> packages. Run the command <code>flutter pub remove jwt_decoder jaguar_jwt</code>.</p>
+<p>You need to remove the code that enable the Firebase emulator mode. Remove the following lines in <code>main.dart</code> file.</p>
+<pre><code language="language-dart" class="language-dart">  if (kDebugMode) {
+    try {
+      // uses emulator
+      await FirebaseAuth.instance.useAuthEmulator(&#39;0.0.0.0&#39;, 9099);
+    } catch (e) {
+      debugPrint(&#39;$e&#39;);
+    }
+  }
+</code></pre>
+<p>Run the app and see the results.</p>
+<p>If you have trouble running the app, you can compare your code in the <code>firebase_live</code> branch.</p>
+<p><a href="https://github.com/emmanuelCode/graphql-firebase-flutter/tree/firebase_live" target="_blank"><paper-button class="colored" raised>View Firebase Live Code</paper-button></a></p>
+<h2 is-upgraded>End</h2>
+<p>Well, that the end of this bonus section. Congrats on making it this far.</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/claat-public/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/prettify.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+</body>
+</html>
