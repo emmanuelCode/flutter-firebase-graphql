@@ -32,7 +32,7 @@
 <ul>
 <li>This codelabs was tested with Ubuntu in mind using the Terminal. For Mac and Windows, see their respective equivalent.</li>
 <li>The IDE I&#39;ve used for this codelab is VSCode, some extensions or plugins I may use not be available on other IDEs.</li>
-<li>This is my own codelab, I am not part of google nor I have been endorsed by them.</li>
+<li>This is my own codelab, I am not part of Google nor I have been endorsed by them.</li>
 </ul>
 <h2 class="checklist" is-upgraded>What you&#39;ll learn</h2>
 <ul class="checklist">
@@ -64,24 +64,24 @@
 <p>You might encounter a problem using the auto install script. If you do, install the standalone by downloading the <a href="https://firebase.tools/bin/linux/latest" target="_blank">binary file</a>. Open a Terminal to where you downloaded the file. Run <code>sudo mv firebase-tools-linux /usr/local/bin</code> to move the file to an appropriate place so it can be recognize by Ubuntu PATH as a global command. Then in the folder where you moved the file, make it executable with <code>chmod +x ./firebase-tools-linux</code> command or the binary won&#39;t run. And Lastly, you&#39;ll need to change the name with <code>sudo mv firebase-tools-linux firebase</code>. So you can use the <code>firebase</code> command. Once installed, try running the <code>firebase --version</code> command to see if installed properly.</p>
 <aside class="warning"><p> Be aware that you must replace the binary when a new update is available. You can run the auto install script in <code>/usr/local/bin</code> for updating or download it and setup manually. You might also want to use npm to avoid downloading updates manually.</p>
 </aside>
-<p>Create an empty flutter project and name it <code>flutter_firebase_graphql</code> of whatever name of your choosing. Run <code>firebase login</code> to sign in. You can verify if your new firebase project that you created earlier is available with <code>firebase projects:list</code></p>
+<p>Create an empty flutter project and name it <code>flutter_firebase_graphql</code> of whatever name of your choosing. Run <code>firebase login</code> to sign in. You can verify if your new Firebase project that you created earlier is available with <code>firebase projects:list</code></p>
 <p class="image-container"><img alt="firebase_cli_login_successful" src="img/a31feed9863276e1.png"></p>
 <p>You can also logout if you&#39;re login with a different user with <code>firebase logout</code> command.</p>
-<p>Under the flutter project directory. Run <code>firebase init</code> and answer the firebase questions. Make sure your answers look like the picture below (answers are in blue). What&#39;s important is to set up local emulators, choosing your existing project, select your firebase project from the list and choosing the Authentication emulator. The rest can all have the default values suggested.</p>
+<p>Under the Flutter project directory. Run <code>firebase init</code> and answer the Firebase questions. Make sure your answers look like the picture below (answers are in blue). What&#39;s important is to set up local emulators, choosing your existing project, select your Firebase project from the list and choosing the Authentication emulator. The rest can all have the default values suggested.</p>
 <p class="image-container"><img alt="firebase_init" src="img/c598fbd805ee209c.png"></p>
 <h2 is-upgraded>FlutterFire CLI</h2>
 <p>Once your Firebase initialization is complete, you can now activate FlutterFire CLI by running <code>dart pub global activate firebase_cli</code> under your project directory.</p>
+<p class="image-container"><img alt="activate_flutterfire_cli" src="img/eeb041f20adce7ec.png"></p>
 <aside class="warning"><p> You will encounter a warning if it&#39;s the first time you install FlutterFire CLI. You have to make sure you set the path or you won&#39;t be able to use any FlutterFire commands. If you&#39;re wondering where your <code>.bashrc</code>, the location is <code>/home/$USER/.bashrc</code> open the file and add the <code>export PATH="$PATH":"$HOME/.pub-cache/bin"</code> at the end. It might be a good idea to add a <code>#</code> comment above as reference(eg: Dart Pub Global).</p>
 </aside>
-<p>You sould see a confirmation message once you installed it. You can verify with <code>flutterfire --version</code> command.</p>
-<p class="image-container"><img alt="firebase_init" src="img/c598fbd805ee209c.png"></p>
-<p>You can also deactivate with <code>dart pub global deactivate flutterfire_cli</code>. You can learn more on dart pub global <a href="https://dart.dev/tools/pub/cmd/pub-global" target="_blank">here</a>.</p>
-<p>Next, run <code>flutterfire configure</code> under your flutter project directory and answers the questions. Make sure your answers look like the picture below (answers are in green). Basically, you choose on which platform you want to configure firebase and accept the files changes in your project file:</p>
+<p>You should see a confirmation message once you installed it. You can verify with <code>flutterfire --version</code> command.</p>
+<p>You can also deactivate FlutterFire with <code>dart pub global deactivate flutterfire_cli</code>. You can learn more on dart pub global <a href="https://dart.dev/tools/pub/cmd/pub-global" target="_blank">here</a>.</p>
+<p>Next, run <code>flutterfire configure</code> under your Flutter project directory and answers the questions. Make sure your answers look like the picture below (answers are in green). Basically, you choose on which platform you want to configure Firebase and accept the files changes in your project file:</p>
 <p class="image-container"><img alt="flutterfire_configure" src="img/6a3d8fdd5f9a7f25.png"></p>
 <h2 is-upgraded>Firebase Dependencies</h2>
-<p>Add your firebase dependencies. For this project we only need the <code>firebase_core</code> and <code>firebase_auth</code>. Run the following line to install them: <code>flutter pub add firebase_core firebase_auth</code>.</p>
-<p class="image-container"><img alt="flutterfire_configure" src="img/6a3d8fdd5f9a7f25.png"></p>
-<p>Now your project is firebase ready to develop with Flutter!</p>
+<p>Add your Firebase dependencies. For this project we only need the <code>firebase_core</code> and <code>firebase_auth</code>. Run the following line to install them: <code>flutter pub add firebase_core firebase_auth</code>.</p>
+<p class="image-container"><img alt="firebase_dependencies" src="img/df436c4fbda4fdb9.png"></p>
+<p>Now your project is Firebase ready to develop with Flutter!</p>
 
 
       </google-codelab-step>
@@ -135,11 +135,11 @@
 <p>The <a href="https://dgraph.io/docs/v21.03/graphql/authorization/directive/" target="_blank"><code>@auth</code>  directive</a> is a special keyword in Dgraph to manage control access on the type. Here you&#39;re telling for each of the queries(query, add, delete, update) only the <code>postOwnerID</code> can have read or write access to the type <code>Post</code>. The <code>postOwnerID</code> will be provided by you when you&#39;ll add a new post. A <code>@search</code> directive is needed in <code>postOwnerID</code> to filter and match the condition in the <code>@auth</code> directive. You&#39;ll notice that the condition you test is the <code>eq</code> value which is the <code>$user_id</code> variable. The <code>$user_id</code> variable will come from Firebase but how Dgraph is aware of Firebase variable? The answer lies in the <code>Dgraph.Authorization</code>.</p>
 <p>Do not mistake the <code>Dgraph.Authorization</code> as commented code. Dgraph uses the last line of the schema to handle authentification for third party provider such as Firebase. It&#39;s always define with a hashtag in front along with the configurations.</p>
 <p>Here&#39;s an explanation of each:</p>
-<p><code>Header</code>: Will be used when you&#39;ll be communicating with the graphql address <code>http://localhost:8080/graphql</code>. It&#39;s an entry point where you usally pass info from Firebase to GraphQL backend such as the token.</p>
+<p><code>Header</code>: Will be used when you&#39;ll be communicating with the GraphQL address <code>http://localhost:8080/graphql</code>. It&#39;s an entry point where you usally pass info from Firebase to GraphQL backend such as the token.</p>
 <p><code>VerificationKey</code>: Is a secret keyword that is required to order to allow access to the backend information. You can think of it as a key to enter your house.</p>
 <p><code>Algo</code>: Is the algorithm that your secret keyword is using. Think of it as a key shape for your front door lock of your house.</p>
 <p><code>Namespace</code>: Is a url that you define that can contain extra variable to use in your backend such a role based acces (eg: Admin, User etc.). The url can be anything even if it&#39;s doesn&#39;t exist. In the end, it&#39;s just an identifier.</p>
-<p><code>Audience</code>: This is where you put your firebase project id. It allows Firebase to handle the intented Audience for the token.</p>
+<p><code>Audience</code>: This is where you put your Firebase project id. It allows Firebase to handle the intented Audience for the token.</p>
 <p><code>ClosedByDefault</code>: Tell you if you&#39;re GraphQL api is available to the public or for private use (only authenticated users) regarless of whether or not you define an <code>@auth</code> directive in the schema.</p>
 <p>If you need a more in depth explanation. You can see Dgraph doc on <a href="https://dgraph.io/docs/v21.03/graphql/authorization/authorization-overview/" target="_blank">Overview of Authorization and Authentication with GraphQL</a>.</p>
 <ul>
@@ -163,7 +163,7 @@
 # Dgraph.Authorization {&#34;Header&#34;:&#34;X-Auth-Token&#34;, &#34;VerificationKey&#34;:&#34;secret&#34;,&#34;Algo&#34;:&#34;HS256&#34;, &#34;Namespace&#34;:&#34;https://dgraph.io/jwt/claims&#34;,&#34;Audience&#34;:[&#34;graphql-firebase-flutter&#34;], &#34;ClosedByDefault&#34;:true}
 </code></pre>
 <h2 is-upgraded>Firebase Token</h2>
-<p>Following the setup of your Dgraph schema file, you will need a dart file to able to communicate with it. What important to know here is that you need to pass in a value to <code>headerKey</code>, so you can communicate with the backend and pass a token provided by Firebase. The Firebase Authentication Emulator only send unsign token <a href="https://firebase.google.com/docs/emulator-suite/connect_auth#id_tokens" target="_blank">by design</a>. Dgraph needs sign token in order to make requests. You have to sign the token yourself.</p>
+<p>Following the setup of your Dgraph schema file, you will need a dart file to able to communicate with it. What important to know here is that you need to pass in a value to <code>headerKey</code>, so you can communicate with the backend and pass a token provided by Firebase. The Firebase Authentication Emulator only send unsign token <a href="https://firebase.google.com/docs/emulator-suite/connect_auth#id_tokens" target="_blank">by design</a>. Dgraph needs a sign token in order to make requests. You have to sign the token yourself.</p>
 <p>Luckily, you have two packages that allows you to decode the token and sign it. You&#39;ll need a method to handle the unsighed token. Install these two dependencies by running <code>flutter pub add jwt_decoder jaguar_jwt</code>.</p>
 <p>Something to point out in the <code>_signFirebaseToken</code> method is once you decode the Firebase token and format it you&#39;ll received an object that look similar to this:</p>
 <pre><code language="language-json" class="language-json">{
@@ -290,7 +290,7 @@ String _signFirebaseToken(String token) {
   }
 }
 </code></pre>
-<p>Your graphql files will serve as assets in your code to read the string, so you must declare the assets at the end of your <code>pubspec.yaml</code> file :</p>
+<p>Your GraphQL files will serve as assets in your code to read the string, so you must declare the assets at the end of your <code>pubspec.yaml</code> file :</p>
 <pre><code language="language-yaml" class="language-yaml">  assets:
     - lib/graphql_queries/
 </code></pre>
@@ -548,7 +548,7 @@ class UserPosts extends _$UserPosts {
 
 
 </code></pre>
-<p>Make sure you install the <a href="https://docs-v2.riverpod.dev/docs/introduction/getting_started#installing-the-package" target="_blank">riverpod dependencies</a> along with the <a href="https://pub.dev/packages/freezed#install" target="_blank">freezed dependencies</a></p>
+<p>Make sure you install the <a href="https://docs-v2.riverpod.dev/docs/introduction/getting_started#installing-the-package" target="_blank">Riverpod dependencies</a> along with the <a href="https://pub.dev/packages/freezed#install" target="_blank">Freezed dependencies</a></p>
 <p>Don&#39;t forget to run <code>dart pub build_runner -d</code> or <code>dart pub build_runner watch -d</code> to generate the part files.</p>
 
 
@@ -1066,7 +1066,11 @@ void main() async {
   if (kDebugMode) {
     try {
       // uses emulator
-      await FirebaseAuth.instance.useAuthEmulator(&#39;0.0.0.0&#39;, 9099);
+      await FirebaseAuth.instance.useAuthEmulator(
+        &#39;localhost&#39;,
+        9099,
+        automaticHostMapping: false,
+      );
     } catch (e) {
       debugPrint(&#39;$e&#39;);
     }
@@ -1107,33 +1111,16 @@ void updateCertificateForOlderDevice() async {
 </code></pre>
 <aside class="warning"><p> Devices running Android Nougat 7.1.1 and earlier versions won&#39;t see the images in the app. Instead you&#39;ll receive an error. That&#39;s because those devices does not contains the new certificate to load those images. That is why you&#39;ll notice that there a certificate method <code>updateCertificateForOlderDevice()</code>. If you&#39;re running the code in a device that is old make sure you add the <code>lets-encrypt-r3.pem</code> file to your <code>pubspec.yaml</code> assets.</p>
 </aside>
-<p>If you&#39;re running on a Android device you&#39;ll need to connect it with the Firebase Authentication Emulator host and you can&#39;t use <code>localhost</code> or <code>127.0.0.1</code> when you declare this line in <code>FirebaseAuth.instance.useAuthEmulator(host, port)</code> in <code>main.dart</code>. Unfortunatety, it will always be remapped to the android emulator and not the device. It will show in the logs as <code>Mapping Auth Emulator host 127.0.0.1 to "10.0.2.2"</code>. To bypass this problem, you&#39;ll need to set the <code>host</code> to  <code>0.0.0.0</code> in your generated <code>firebase.json</code> file and set the host in <code>main.dart</code> to <code>FirebaseAuth.instance.useAuthEmulator(0.0.0.0, port)</code>.</p>
-<ul>
-<li><code>firebase.json</code></li>
-</ul>
-<pre><code language="language-json" class="language-json">{
-  &#34;emulators&#34;: {
-    &#34;auth&#34;: {
-      &#34;port&#34;: 9099,
-      &#34;host&#34;: &#34;0.0.0.0&#34;
-    },
-    &#34;ui&#34;: {
-      &#34;enabled&#34;: true
-    },
-    &#34;singleProjectMode&#34;: true
-  }
-}
-
-</code></pre>
+<p>If you&#39;re running on a Android device you&#39;ll need to connect it with the Firebase authentication emulator host. You need to set <code>automaticHostMapping</code> to <code>false</code> when you declare this line in <code>FirebaseAuth.instance.useAuthEmulator('localhost', 9099)</code> in <code>main.dart</code>. If you don&#39;t, it will always be remapped to the Android emulator and will show in the logs as <code>Mapping Auth Emulator host 127.0.0.1 to "10.0.2.2"</code>.</p>
 <p>Next, you&#39;ll need to start up the servers in the Terminal:</p>
 <ul>
 <li>Start Firebase authentication emulator: <code>firebase emulators:start</code></li>
-<li>Start Dgraph local backend: <code>sudo docker run --rm -it -p 8080:8080 -p 9080:9080 dgraph/standalone:latest</code></li>
+<li>Start Dgraph local backend: <code>sudo docker run -it -p 8080:8080 dgraph/standalone:latest</code></li>
 <li>Push Dgraph schema to the backend: <code>curl -X POST localhost:8080/admin/schema --data-binary '@schema.graphql</code></li>
 </ul>
-<p>While your android phone is connected via USB, use the adb binary in android sdk folder (default location: <code>/home/$USER/Android/Sdk/platform-tools</code>) to connect your device to the servers:</p>
+<p>While your Android phone is connected via USB, use the adb binary in Android SDK folder (default location: <code>/home/$USER/Android/Sdk/platform-tools</code>) to connect your device to the servers:</p>
 <ul>
-<li>Connect to Dgraph Backend: <code>./adb reverse tcp:8080 tcp:8080</code></li>
+<li>Connect to Dgraph backend: <code>./adb reverse tcp:8080 tcp:8080</code></li>
 <li>Connect to Firebase authentication emulator: <code>./adb reverse tcp:9099 tcp:9099</code></li>
 </ul>
 <p>Finally, run the app in your IDE.</p>
@@ -1160,9 +1147,9 @@ void updateCertificateForOlderDevice() async {
       </google-codelab-step>
     
       <google-codelab-step label="Bonus: Firebase Live" duration="0">
-        <p>It&#39;s great that you can authenticate with the firebase emulator for testing your local environment but what if you want to do it at a production level. Well, this is what you&#39;ll cover in the next sections.</p>
+        <p>It&#39;s great that you can authenticate with the Firebase emulator for testing your local environment but what if you want to do it at a production level. Well, this is what you&#39;ll cover in the next sections.</p>
 <h2 is-upgraded>Enable Email/Password Authentification</h2>
-<p>First you&#39;ll need to go to your <a href="https://console.firebase.google.com/" target="_blank">Firebase console</a>:</p>
+<p>First you&#39;ll need to go to your <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a>:</p>
 <p class="image-container"><img alt="email_auth_01" src="img/363abcdf61711307.png"></p>
 <p>On the left panel, select authentification and click on &#34;Get Started&#34;:</p>
 <p class="image-container"><img alt="email_auth_02" src="img/b36bce5fba75395b.png"></p>
@@ -1179,14 +1166,18 @@ void updateCertificateForOlderDevice() async {
 <p>Taking the Flutter app, you&#39;ll need to change the authorization line in the <code>schema.graphql</code> to this line:</p>
 <pre><code language="language-graphql" class="language-graphql"># Dgraph.Authorization {&#34;Header&#34;:&#34;X-Auth-Token&#34;, &#34;JWKUrl&#34;:&#34;https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com&#34;, &#34;Namespace&#34;:&#34;https://dgraph.io/jwt/claims&#34;,&#34;Audience&#34;:[&#34;graphql-firebase-flutter&#34;], &#34;ClosedByDefault&#34;:true}
 </code></pre>
-<p>Compared with what you had ealier, you removed the <code>VerificationKey</code> and <code>Algo</code>. Then we added a new <code>JWKURL</code> which stand for JSON Web Key url. The JSON Web Key are hosted by Firebase.</p>
+<p>Compared with what you had earlier, you removed the <code>VerificationKey</code> and <code>Algo</code>. Then we added a new <code>JWKURL</code> which stand for JSON Web Key url. The JSON Web Key are hosted by Firebase.</p>
 <h2 is-upgraded>Code Changes</h2>
-<p>Since you no longer using the Firebase emulator. You&#39;ll now receive signed token. So in the <code>graphql_client.dart</code> file, you can remove the <code>_signFirebaseToken(token)</code> and replace with <code>token</code>. You can also delete the method along with removing the <code>jwt_decoder</code> and <code>jaguar_jwt</code> packages. Run the command <code>flutter pub remove jwt_decoder jaguar_jwt</code>.</p>
+<p>Since you no longer using the Firebase emulator. You&#39;ll now receive a signed token. So in the <code>graphql_client.dart</code> file, you can remove the <code>_signFirebaseToken(token)</code> and replace with <code>token</code>. You can also delete the method along with removing the <code>jwt_decoder</code> and <code>jaguar_jwt</code> packages. Run the command <code>flutter pub remove jwt_decoder jaguar_jwt</code>.</p>
 <p>You need to remove the code that enable the Firebase emulator mode. Remove the following lines in <code>main.dart</code> file.</p>
 <pre><code language="language-dart" class="language-dart">  if (kDebugMode) {
     try {
       // uses emulator
-      await FirebaseAuth.instance.useAuthEmulator(&#39;0.0.0.0&#39;, 9099);
+      await FirebaseAuth.instance.useAuthEmulator(
+        &#39;localhost&#39;,
+        9099,
+        automaticHostMapping: false,
+      );
     } catch (e) {
       debugPrint(&#39;$e&#39;);
     }
